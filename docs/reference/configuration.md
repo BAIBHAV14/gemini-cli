@@ -115,7 +115,7 @@ their corresponding top-level category object in your `settings.json` file.
   - **Description:** The default approval mode for tool execution. 'default'
     prompts for approval, 'auto_edit' auto-approves edit tools, and 'plan' is
     read-only mode. YOLO mode (auto-approve all actions) can only be enabled via
-    command line (--yolo or --approval-mode=yolo).
+    command line (--yolo).
   - **Default:** `"default"`
   - **Values:** `"default"`, `"auto_edit"`, `"plan"`
 
@@ -1849,7 +1849,7 @@ their corresponding top-level category object in your `settings.json` file.
 #### `admin`
 
 - **`admin.secureModeEnabled`** (boolean):
-  - **Description:** If true, disallows YOLO mode and "Always allow" options
+  - **Description:** If true, disallows YOLO mode (wildcard policies) and "Always allow" options
     from being used.
   - **Default:** `false`
 
@@ -2251,13 +2251,10 @@ for that specific session.
     - `default`: Prompt for approval on each tool call (default behavior)
     - `auto_edit`: Automatically approve edit tools (replace, write_file) while
       prompting for others
-    - `yolo`: Automatically approve all tool calls (equivalent to `--yolo`)
     - `plan`: Read-only mode for tool calls (requires experimental planning to
       be enabled).
       > **Note:** This mode is currently under development and not yet fully
       > functional.
-  - Cannot be used together with `--yolo`. Use `--approval-mode=yolo` instead of
-    `--yolo` for the new unified approach.
   - Example: `gemini --approval-mode auto_edit`
 - **`--debug`** (**`-d`**):
   - Enables debug mode for this session, providing more verbose output. Open the
@@ -2329,7 +2326,7 @@ for that specific session.
 - **`--version`**:
   - Displays the version of the CLI.
 - **`--yolo`**:
-  - Enables YOLO mode, which automatically approves all tool calls.
+  - Automatically approves all actions. Equivalent to `--allowed-tools=*`.
 
 ## Context files (hierarchical instructional context)
 
@@ -2443,7 +2440,7 @@ Sandboxing is disabled by default, but you can enable it in a few ways:
 
 - Using `--sandbox` or `-s` flag.
 - Setting `GEMINI_SANDBOX` environment variable.
-- Sandbox is enabled when using `--yolo` or `--approval-mode=yolo` by default.
+- Sandbox is enabled when using `--yolo` by default.
 
 By default, it uses a pre-built `gemini-cli-sandbox` Docker image.
 
