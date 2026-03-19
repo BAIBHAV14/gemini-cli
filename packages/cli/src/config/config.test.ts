@@ -156,7 +156,7 @@ vi.mock('@google/gemini-cli-core', async () => {
     ),
     getAdminErrorMessage: vi.fn(
       (_feature) =>
-        `YOLO mode is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli`,
+        `Wildcard policies are disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli`,
     ),
     isHeadlessMode: vi.fn((opts) => {
       if (process.env['VITEST'] === 'true') {
@@ -1443,7 +1443,7 @@ describe('Approval mode tool exclusion logic', () => {
     expect(excludedTools).toContain(ASK_USER_TOOL_NAME);
   });
 
-  it('should throw an error if YOLO mode is attempted when disableYoloMode is true', async () => {
+  it('should throw an error if wildcard policy is attempted when disableYoloMode is true', async () => {
     process.argv = ['node', 'script.js', '--yolo'];
     const argv = await parseArguments(createTestMergedSettings());
     const settings = createTestMergedSettings({
@@ -1453,7 +1453,7 @@ describe('Approval mode tool exclusion logic', () => {
     });
 
     await expect(loadCliConfig(settings, 'test-session', argv)).rejects.toThrow(
-      'YOLO mode is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+      'Wildcard policies are disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
     );
   });
 
@@ -1470,7 +1470,7 @@ describe('Approval mode tool exclusion logic', () => {
     await expect(
       loadCliConfig(settings, 'test-session', invalidArgv as CliArgs),
     ).rejects.toThrow(
-      'Invalid approval mode: invalid_mode. Valid values are: auto_edit, plan, default (yolo is mapped to allowed-tools)',
+      'Invalid approval mode: invalid_mode. Valid values are: auto_edit, plan, default ',
     );
   });
 
@@ -2251,7 +2251,7 @@ describe('loadCliConfig tool exclusions', () => {
     vi.restoreAllMocks();
   });
 
-  it('should not exclude interactive tools in interactive mode without YOLO', async () => {
+  it('should not exclude interactive tools in interactive mode without wildcard', async () => {
     process.stdin.isTTY = true;
     process.argv = ['node', 'script.js'];
     const argv = await parseArguments(createTestMergedSettings());
@@ -2266,7 +2266,7 @@ describe('loadCliConfig tool exclusions', () => {
     expect(config.getExcludeTools()).not.toContain('ask_user');
   });
 
-  it('should not exclude interactive tools in interactive mode with YOLO', async () => {
+  it('should not exclude interactive tools in interactive mode with wildcard', async () => {
     process.stdin.isTTY = true;
     process.argv = ['node', 'script.js', '--yolo'];
     const argv = await parseArguments(createTestMergedSettings());
@@ -2281,7 +2281,7 @@ describe('loadCliConfig tool exclusions', () => {
     expect(config.getExcludeTools()).not.toContain('ask_user');
   });
 
-  it('should exclude interactive tools in non-interactive mode without YOLO', async () => {
+  it('should exclude interactive tools in non-interactive mode without wildcard', async () => {
     process.stdin.isTTY = false;
     process.argv = ['node', 'script.js', '-p', 'test'];
     const argv = await parseArguments(createTestMergedSettings());
@@ -2296,7 +2296,7 @@ describe('loadCliConfig tool exclusions', () => {
     expect(config.getExcludeTools()).toContain('ask_user');
   });
 
-  it('should exclude only ask_user in non-interactive mode with YOLO', async () => {
+  it('should exclude only ask_user in non-interactive mode with wildcard', async () => {
     process.stdin.isTTY = false;
     process.argv = ['node', 'script.js', '-p', 'test', '--yolo'];
     const argv = await parseArguments(createTestMergedSettings());
@@ -2661,7 +2661,7 @@ describe('loadCliConfig approval mode', () => {
     expect(config.getApprovalMode()).toBe(ServerConfig.ApprovalMode.DEFAULT);
   });
 
-  it('should set YOLO approval mode when --yolo flag is used', async () => {
+  it('should set wildcard allowed tools when --yolo flag is used', async () => {
     process.argv = ['node', 'script.js', '--yolo'];
     const argv = await parseArguments(createTestMergedSettings());
     const config = await loadCliConfig(
@@ -2670,9 +2670,10 @@ describe('loadCliConfig approval mode', () => {
       argv,
     );
     expect(config.getApprovalMode()).toBe(ServerConfig.ApprovalMode.DEFAULT);
+    expect(config.getAllowedTools()).toEqual(['*']);
   });
 
-  it('should set YOLO approval mode when -y flag is used', async () => {
+  it('should set wildcard allowed tools when -y flag is used', async () => {
     process.argv = ['node', 'script.js', '-y'];
     const argv = await parseArguments(createTestMergedSettings());
     const config = await loadCliConfig(
@@ -2681,6 +2682,7 @@ describe('loadCliConfig approval mode', () => {
       argv,
     );
     expect(config.getApprovalMode()).toBe(ServerConfig.ApprovalMode.DEFAULT);
+    expect(config.getAllowedTools()).toEqual(['*']);
   });
 
   it('should set DEFAULT approval mode when --approval-mode=default', async () => {
@@ -2705,7 +2707,7 @@ describe('loadCliConfig approval mode', () => {
     expect(config.getApprovalMode()).toBe(ServerConfig.ApprovalMode.AUTO_EDIT);
   });
 
-  it('should set YOLO approval mode when --approval-mode=yolo', async () => {
+  it('should set wildcard allowed tools when --approval-mode=yolo', async () => {
     process.argv = ['node', 'script.js', '--approval-mode', 'yolo'];
     const argv = await parseArguments(createTestMergedSettings());
     const config = await loadCliConfig(
@@ -2714,6 +2716,7 @@ describe('loadCliConfig approval mode', () => {
       argv,
     );
     expect(config.getApprovalMode()).toBe(ServerConfig.ApprovalMode.DEFAULT);
+    expect(config.getAllowedTools()).toEqual(['*']);
   });
 
   it('should prioritize --approval-mode over --yolo when both would be valid (but validation prevents this)', async () => {
@@ -2740,6 +2743,7 @@ describe('loadCliConfig approval mode', () => {
       argv,
     );
     expect(config.getApprovalMode()).toBe(ServerConfig.ApprovalMode.DEFAULT);
+    expect(config.getAllowedTools()).toEqual(['*']);
   });
 
   it('should set Plan approval mode when --approval-mode=plan is used and experimental.plan is enabled', async () => {
@@ -3544,14 +3548,25 @@ describe('loadCliConfig disableYoloMode', () => {
     expect(config.getApprovalMode()).toBe(ApprovalMode.AUTO_EDIT);
   });
 
-  it('should throw if YOLO mode is attempted when disableYoloMode is true', async () => {
+  it('should throw if wildcard policy is attempted when disableYoloMode is true', async () => {
     process.argv = ['node', 'script.js', '--yolo'];
     const argv = await parseArguments(createTestMergedSettings());
     const settings = createTestMergedSettings({
       security: { disableYoloMode: true },
     });
     await expect(loadCliConfig(settings, 'test-session', argv)).rejects.toThrow(
-      'YOLO mode is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+      'Wildcard policies are disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+    );
+  });
+
+  it('should throw if wildcard tools are requested when disableYoloMode is true', async () => {
+    process.argv = ['node', 'script.js', '--allowed-tools=*'];
+    const argv = await parseArguments(createTestMergedSettings());
+    const settings = createTestMergedSettings({
+      security: { disableYoloMode: true },
+    });
+    await expect(loadCliConfig(settings, 'test-session', argv)).rejects.toThrow(
+      'Wildcard policies are disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
     );
   });
 });
@@ -3573,7 +3588,7 @@ describe('loadCliConfig secureModeEnabled', () => {
     vi.restoreAllMocks();
   });
 
-  it('should throw an error if YOLO mode is attempted when secureModeEnabled is true', async () => {
+  it('should throw an error if wildcard policy is attempted when secureModeEnabled is true', async () => {
     process.argv = ['node', 'script.js', '--yolo'];
     const argv = await parseArguments(createTestMergedSettings());
     const settings = createTestMergedSettings({
@@ -3583,7 +3598,7 @@ describe('loadCliConfig secureModeEnabled', () => {
     });
 
     await expect(loadCliConfig(settings, 'test-session', argv)).rejects.toThrow(
-      'YOLO mode is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+      'Wildcard policies are disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
     );
   });
 
@@ -3597,7 +3612,21 @@ describe('loadCliConfig secureModeEnabled', () => {
     });
 
     await expect(loadCliConfig(settings, 'test-session', argv)).rejects.toThrow(
-      'YOLO mode is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+      'Wildcard policies are disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+    );
+  });
+
+  it('should throw an error if wildcard tools are requested when secureModeEnabled is true', async () => {
+    process.argv = ['node', 'script.js', '--allowed-tools=*'];
+    const argv = await parseArguments(createTestMergedSettings());
+    const settings = createTestMergedSettings({
+      admin: {
+        secureModeEnabled: true,
+      },
+    });
+
+    await expect(loadCliConfig(settings, 'test-session', argv)).rejects.toThrow(
+      'Wildcard policies are disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
     );
   });
 
