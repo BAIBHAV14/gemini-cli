@@ -170,6 +170,7 @@ they appear in the UI.
 | Agent History Retained Messages    | `experimental.agentHistoryRetainedMessages`    | The number of recent messages to retain after truncation.                                                                                                 | `15`    |
 | Agent History Summarization        | `experimental.agentHistorySummarization`       | Enable summarization of truncated content via a small model for the Agent History Provider.                                                               | `false` |
 | Topic & Update Narration           | `experimental.topicUpdateNarration`            | Enable the experimental Topic & Update communication model for reduced chattiness and structured progress reporting.                                      | `false` |
+| Enable /btw Side Inquiries         | `experimental.btw`                             | Enable the experimental /btw side inquiry command for ephemeral, non-persisted chat turns.                                                                | `false` |
 
 ### Skills
 
