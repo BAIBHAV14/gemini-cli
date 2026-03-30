@@ -40,7 +40,7 @@ describe('<ModelQuotaDisplay />', () => {
     const output = lastFrame();
 
     expect(output).toContain('Model usage');
-    expect(output).toContain('gemini-2.5-pro');
+    expect(output).toContain('Pro');
     expect(output).toContain('25%');
     expect(output).toContain('Resets:');
     expect(output).toMatchSnapshot();
@@ -81,7 +81,7 @@ describe('<ModelQuotaDisplay />', () => {
     );
     const output = lastFrame();
 
-    expect(output).toContain('gemini-2.5-pro');
-    expect(output).not.toContain('gemini-2.5-flash');
+    expect(output).toContain('Pro');
+    expect(output).not.toContain('Flash');
   });
 });

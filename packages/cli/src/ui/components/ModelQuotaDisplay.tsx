@@ -68,7 +68,7 @@ const ModelUsageRow: React.FC<ModelUsageRowProps> = ({
   );
 
   return (
-    <Box flexDirection="row" width="100%">
+    <Box flexDirection="row" width="100%" marginBottom={1}>
       <Box width={nameLabelLength}>
         <Text color={theme.text.primary}>{nameLabel}</Text>
       </Box>
@@ -114,15 +114,51 @@ export const ModelQuotaDisplay: React.FC<ModelQuotaDisplayProps> = ({
       );
     }
 
-    return filteredBuckets.map((b) => {
-      const usedFraction = 1 - b.remainingFraction!;
+    const groupedByTier = new Map<
+      string,
+      {
+        modelId: string;
+        remainingFraction: number;
+        resetTime?: string;
+        name: string;
+      }
+    >();
+
+    filteredBuckets.forEach((b) => {
+      const tier = config?.modelConfigService?.getModelDefinition(
+        b.modelId!,
+      )?.tier;
+      const groupKey = tier ?? b.modelId!;
+      const existing = groupedByTier.get(groupKey);
+
+      if (!existing || b.remainingFraction! < existing.remainingFraction) {
+        const tierDisplayNames: Record<string, string> = {
+          pro: 'Pro',
+          flash: 'Flash',
+          'flash-lite': 'Flash Lite',
+        };
+        const name = tier
+          ? (tierDisplayNames[tier] ?? tier)
+          : getDisplayString(b.modelId!, config);
+
+        groupedByTier.set(groupKey, {
+          modelId: b.modelId!,
+          remainingFraction: b.remainingFraction!,
+          resetTime: b.resetTime,
+          name,
+        });
+      }
+    });
+
+    return Array.from(groupedByTier.entries()).map(([key, data]) => {
+      const usedFraction = 1 - data.remainingFraction;
       const usedPercentage = usedFraction * 100;
       return {
-        modelId: b.modelId!,
-        name: getDisplayString(b.modelId!, config),
+        modelId: key,
+        name: data.name,
         usedFraction,
         usedPercentage,
-        resetTime: b.resetTime,
+        resetTime: data.resetTime,
       };
     });
   }, [buckets, config, modelsToShow]);
@@ -144,9 +180,11 @@ export const ModelQuotaDisplay: React.FC<ModelQuotaDisplayProps> = ({
       />
 
       <Box flexDirection="column">
-        <Text bold color={theme.text.primary}>
-          {title}
-        </Text>
+        <Box marginBottom={1}>
+          <Text bold color={theme.text.primary}>
+            {title}
+          </Text>
+        </Box>
 
         {modelsWithQuotas.map(
           (row) =>

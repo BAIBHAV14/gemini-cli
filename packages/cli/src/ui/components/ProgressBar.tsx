@@ -23,7 +23,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const activeChars = Math.round((safeValue / 100) * width);
   const inactiveChars = width - activeChars;
 
-  let color = Colors.Foreground;
+  let color = Colors.AccentGreen;
   if (safeValue >= 100) {
     color = Colors.AccentRed;
   } else if (safeValue >= warningThreshold) {
@@ -32,8 +32,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   return (
     <Box flexDirection="row">
-      <Text color={color}>{'▬'.repeat(activeChars)}</Text>
-      <Text color={Colors.DarkGray}>{'▬'.repeat(inactiveChars)}</Text>
+      <Text color={color}>{'█'.repeat(activeChars)}</Text>
+      <Text color={Colors.DarkGray}>{'█'.repeat(inactiveChars)}</Text>
     </Box>
   );
 };
