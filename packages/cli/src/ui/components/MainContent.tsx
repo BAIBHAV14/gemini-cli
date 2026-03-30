@@ -216,6 +216,28 @@ export const MainContent = () => {
     ],
   );
 
+  const btwDisplayNode = useMemo(
+    () =>
+      uiState.btwState.isActive ? (
+        <BtwDisplay
+          key="btw-display"
+          query={uiState.btwState.query}
+          response={uiState.btwState.response}
+          isStreaming={uiState.btwState.isStreaming}
+          error={uiState.btwState.error}
+          terminalWidth={uiState.terminalWidth}
+        />
+      ) : null,
+    [
+      uiState.btwState.isActive,
+      uiState.btwState.query,
+      uiState.btwState.response,
+      uiState.btwState.isStreaming,
+      uiState.btwState.error,
+      uiState.terminalWidth,
+    ],
+  );
+
   const virtualizedData = useMemo(() => {
     const data: Array<
       | { type: 'header' }
@@ -286,16 +308,7 @@ export const MainContent = () => {
           />
         );
       } else if (item.type === 'btw') {
-        return (
-          <BtwDisplay
-            key="btw-display"
-            query={uiState.btwState.query}
-            response={uiState.btwState.response}
-            isStreaming={uiState.btwState.isStreaming}
-            error={uiState.btwState.error}
-            terminalWidth={uiState.terminalWidth}
-          />
-        );
+        return <>{btwDisplayNode}</>;
       } else {
         return pendingItems;
       }
@@ -308,11 +321,7 @@ export const MainContent = () => {
       pendingItems,
       uiState.constrainHeight,
       staticAreaMaxItemHeight,
-      uiState.btwState.query,
-      uiState.btwState.response,
-      uiState.btwState.isStreaming,
-      uiState.btwState.error,
-      uiState.terminalWidth,
+      btwDisplayNode,
     ],
   );
 
@@ -350,16 +359,7 @@ export const MainContent = () => {
         {(item) => item}
       </Static>
       {pendingItems}
-      {uiState.btwState.isActive && (
-        <BtwDisplay
-          key="btw-display"
-          query={uiState.btwState.query}
-          response={uiState.btwState.response}
-          isStreaming={uiState.btwState.isStreaming}
-          error={uiState.btwState.error}
-          terminalWidth={uiState.terminalWidth}
-        />
-      )}
+      {btwDisplayNode}
     </>
   );
 };
