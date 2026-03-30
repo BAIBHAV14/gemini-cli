@@ -1678,6 +1678,11 @@ their corresponding top-level category object in your `settings.json` file.
   - **Default:** `false`
   - **Requires restart:** Yes
 
+- **`experimental.useAgentProtocol`** (boolean):
+  - **Description:** Enable the experimental unified agent for interactive mode.
+  - **Default:** `false`
+  - **Requires restart:** Yes
+
 - **`experimental.gemmaModelRouter.enabled`** (boolean):
   - **Description:** Enable the Gemma Model Router (experimental). Requires a
     local endpoint serving Gemma via the Gemini API using LiteRT-LM shim.

@@ -2877,6 +2877,13 @@
           "default": false,
           "type": "boolean"
         },
+        "useAgentProtocol": {
+          "title": "Use Agent Protocol",
+          "description": "Enable the experimental unified agent for interactive mode.",
+          "markdownDescription": "Enable the experimental unified agent for interactive mode.\n\n- Category: `Experimental`\n- Requires restart: `yes`\n- Default: `false`",
+          "default": false,
+          "type": "boolean"
+        },
         "gemmaModelRouter": {
           "title": "Gemma Model Router",
           "description": "Enable Gemma model router (experimental).",
