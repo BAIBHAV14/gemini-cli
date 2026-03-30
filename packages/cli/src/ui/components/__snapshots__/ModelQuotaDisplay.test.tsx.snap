@@ -4,6 +4,6 @@ exports[`<ModelQuotaDisplay /> > renders quota information when buckets are prov
 "
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 Model usage
-gemini-2.5-pro           🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋    25%  Resets: 1:30 PM (1h 30m) 
+gemini-2.5-pro           ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬    25%  Resets: 1:30 PM (1h 30m)  
 "
 `;
