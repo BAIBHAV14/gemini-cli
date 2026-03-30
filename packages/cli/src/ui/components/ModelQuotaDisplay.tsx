@@ -33,8 +33,6 @@ interface ModelUsageRowProps {
     usedFraction: number;
     usedPercentage: number;
     resetTime?: string;
-    row: object;
-    availableWidth?: number;
   };
   availableWidth?: number;
 }
