@@ -242,7 +242,6 @@ export const MainContent = () => {
     const data: Array<
       | { type: 'header' }
       | { type: 'pending' }
-      | { type: 'btw' }
       | {
           type: 'history';
           item: (typeof augmentedHistory)[0]['item'];
@@ -271,11 +270,8 @@ export const MainContent = () => {
       ),
       { type: 'pending' as const },
     ];
-    if (uiState.btwState.isActive) {
-      data.push({ type: 'btw' as const });
-    }
     return data;
-  }, [augmentedHistory, uiState.btwState.isActive]);
+  }, [augmentedHistory]);
 
   const renderItem = useCallback(
     ({ item }: { item: (typeof virtualizedData)[number] }) => {
@@ -307,8 +303,6 @@ export const MainContent = () => {
             suppressNarration={item.suppressNarration}
           />
         );
-      } else if (item.type === 'btw') {
-        return <>{btwDisplayNode}</>;
       } else {
         return pendingItems;
       }
@@ -321,28 +315,31 @@ export const MainContent = () => {
       pendingItems,
       uiState.constrainHeight,
       staticAreaMaxItemHeight,
-      btwDisplayNode,
     ],
   );
 
   if (isAlternateBuffer) {
     return (
-      <ScrollableList
-        ref={scrollableListRef}
-        hasFocus={!uiState.isEditorDialogOpen && !uiState.embeddedShellFocused}
-        width={uiState.terminalWidth}
-        data={virtualizedData}
-        renderItem={renderItem}
-        estimatedItemHeight={() => 100}
-        keyExtractor={(item, _index) => {
-          if (item.type === 'header') return 'header';
-          if (item.type === 'history') return item.item.id.toString();
-          if (item.type === 'btw') return 'btw';
-          return 'pending';
-        }}
-        initialScrollIndex={SCROLL_TO_ITEM_END}
-        initialScrollOffsetInIndex={SCROLL_TO_ITEM_END}
-      />
+      <>
+        <ScrollableList
+          ref={scrollableListRef}
+          hasFocus={
+            !uiState.isEditorDialogOpen && !uiState.embeddedShellFocused
+          }
+          width={uiState.terminalWidth}
+          data={virtualizedData}
+          renderItem={renderItem}
+          estimatedItemHeight={() => 100}
+          keyExtractor={(item, _index) => {
+            if (item.type === 'header') return 'header';
+            if (item.type === 'history') return item.item.id.toString();
+            return 'pending';
+          }}
+          initialScrollIndex={SCROLL_TO_ITEM_END}
+          initialScrollOffsetInIndex={SCROLL_TO_ITEM_END}
+        />
+        {btwDisplayNode}
+      </>
     );
   }
 
