@@ -227,6 +227,7 @@ export const MainContent = () => {
           isExpandable: boolean;
           isFirstThinking: boolean;
           isFirstAfterThinking: boolean;
+          suppressNarration: boolean;
         }
     > = [
       { type: 'header' as const },
