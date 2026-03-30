@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/* eslint-disable react/prop-types */
 import { useMemo } from 'react';
 import { Box, Text } from 'ink';
 import { ProgressBar } from './ProgressBar.js';
@@ -34,19 +33,17 @@ interface ModelUsageRowProps {
     usedFraction: number;
     usedPercentage: number;
     resetTime?: string;
+    row: object;
+    availableWidth?: number;
   };
   availableWidth?: number;
 }
 
-const ModelUsageRow: React.FC<ModelUsageRowProps> = ({
-  row,
-  availableWidth,
-}) => {
+const ModelUsageRow = ({ row, availableWidth }: ModelUsageRowProps) => {
   const { terminalWidth } = useUIState();
 
   const nameLabelLength = 25;
   const resetLabelLength = 26;
-  // const nameLabel = row.name.slice(0, nameLabelLength).padEnd(nameLabelLength);
   let nameLabel = row.name;
   if (nameLabel.length > nameLabelLength) {
     nameLabel = nameLabel.slice(0, nameLabelLength - 1) + '…';
@@ -88,12 +85,12 @@ const ModelUsageRow: React.FC<ModelUsageRowProps> = ({
   );
 };
 
-export const ModelQuotaDisplay: React.FC<ModelQuotaDisplayProps> = ({
+export const ModelQuotaDisplay = ({
   buckets,
   availableWidth,
   modelsToShow = ['all'],
   title = 'Model usage',
-}) => {
+}: ModelQuotaDisplayProps) => {
   const config = useConfig();
 
   const modelsWithQuotas = useMemo(() => {

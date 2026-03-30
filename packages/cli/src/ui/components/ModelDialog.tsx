@@ -378,7 +378,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
             Remember model for future sessions:{' '}
           </Text>
           <Text color={theme.status.success}>
-            {persistMode ? 'true ' : 'false '}
+            {persistMode ? 'true' : 'false'}
           </Text>
           <Text color={theme.text.secondary}>(Press Tab to toggle)</Text>
         </Box>

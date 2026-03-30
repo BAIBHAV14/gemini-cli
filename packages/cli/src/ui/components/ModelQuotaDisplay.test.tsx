@@ -7,7 +7,6 @@
 import { renderWithProviders } from '../../test-utils/render.js';
 import { describe, it, expect, vi } from 'vitest';
 import { ModelQuotaDisplay } from './ModelQuotaDisplay.js';
-// import { type RetrieveUserQuotaResponse } from '@google/gemini-cli-core';
 
 describe('<ModelQuotaDisplay />', () => {
   beforeEach(() => {
