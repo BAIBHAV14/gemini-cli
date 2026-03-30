@@ -150,7 +150,7 @@ import {
 } from '../code_assist/experiments/experiments.js';
 import { AgentRegistry } from '../agents/registry.js';
 import { AcknowledgedAgentsService } from '../agents/acknowledgedAgents.js';
-import { setGlobalProxy } from '../utils/fetch.js';
+import { setGlobalProxy, updateGlobalFetchTimeouts } from '../utils/fetch.js';
 import { SubagentTool } from '../agents/subagent-tool.js';
 import { ExperimentFlags } from '../code_assist/experiments/flagNames.js';
 import { debugLogger } from '../utils/debugLogger.js';
@@ -1317,6 +1317,11 @@ export class Config implements McpContext, AgentLoopContext {
     if (this.telemetrySettings.enabled) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initializeTelemetry(this);
+    }
+
+    const requestTimeoutMs = this.getRequestTimeoutMs();
+    if (requestTimeoutMs !== undefined) {
+      updateGlobalFetchTimeouts(requestTimeoutMs);
     }
 
     const proxy = this.getProxy();
@@ -3061,6 +3066,18 @@ export class Config implements McpContext, AgentLoopContext {
       this.experiments?.flags[ExperimentFlags.GEMINI_3_1_PRO_LAUNCHED]
         ?.boolValue ?? false
     );
+  }
+
+  /**
+   * Returns the configured default request timeout in milliseconds.
+   */
+  getRequestTimeoutMs(): number | undefined {
+    const flag =
+      this.experiments?.flags?.[ExperimentFlags.DEFAULT_REQUEST_TIMEOUT];
+    if (flag?.intValue !== undefined) {
+      return parseInt(flag.intValue, 10) * 1000; // Convert seconds to milliseconds
+    }
+    return undefined;
   }
 
   /**
