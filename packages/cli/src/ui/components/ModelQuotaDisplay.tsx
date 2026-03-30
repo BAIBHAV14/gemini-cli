@@ -65,7 +65,7 @@ const ModelUsageRow = ({ row, availableWidth }: ModelUsageRowProps) => {
   );
 
   return (
-    <Box flexDirection="row" width="100%" marginBottom={1}>
+    <Box flexDirection="row" width="100%">
       <Box width={nameLabelLength}>
         <Text color={theme.text.primary}>{nameLabel}</Text>
       </Box>

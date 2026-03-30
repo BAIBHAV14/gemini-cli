@@ -32,8 +32,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   return (
     <Box flexDirection="row">
-      <Text color={color}>{'█'.repeat(activeChars)}</Text>
-      <Text color={Colors.DarkGray}>{'█'.repeat(inactiveChars)}</Text>
+      <Text color={color}>{'▬'.repeat(activeChars)}</Text>
+      <Text color={Colors.DarkGray}>{'▬'.repeat(inactiveChars)}</Text>
     </Box>
   );
 };
