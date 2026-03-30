@@ -45,7 +45,7 @@ const ModelUsageRow: React.FC<ModelUsageRowProps> = ({
   const { terminalWidth } = useUIState();
 
   const nameLabelLength = 25;
-  const resetLabelLength = 25;
+  const resetLabelLength = 26;
   // const nameLabel = row.name.slice(0, nameLabelLength).padEnd(nameLabelLength);
   let nameLabel = row.name;
   if (nameLabel.length > nameLabelLength) {
@@ -54,7 +54,7 @@ const ModelUsageRow: React.FC<ModelUsageRowProps> = ({
     nameLabel = nameLabel.padEnd(nameLabelLength);
   }
   const percentageLabel = `${row.usedPercentage.toFixed(0)}%`.padEnd(4);
-  const resetLabel = `${row.resetTime}`
+  const resetLabel = row.resetTime
     ? formatResetTime(row.resetTime, 'column')
         .slice(0, resetLabelLength)
         .padEnd(resetLabelLength)
