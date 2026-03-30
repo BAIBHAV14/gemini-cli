@@ -688,6 +688,8 @@ export interface ConfigParameters {
   experimentalAgentHistoryTruncationThreshold?: number;
   experimentalAgentHistoryRetainedMessages?: number;
   experimentalAgentHistorySummarization?: boolean;
+  experimentalWatchman?: boolean;
+  experimentalWatchmanInterval?: number;
   memoryBoundaryMarkers?: string[];
   topicUpdateNarration?: boolean;
   toolOutputMasking?: Partial<ToolOutputMaskingConfig>;
@@ -926,6 +928,8 @@ export class Config implements McpContext, AgentLoopContext {
   private readonly experimentalAgentHistoryTruncationThreshold: number;
   private readonly experimentalAgentHistoryRetainedMessages: number;
   private readonly experimentalAgentHistorySummarization: boolean;
+  private readonly experimentalWatchman: boolean;
+  private readonly experimentalWatchmanInterval: number;
   private readonly memoryBoundaryMarkers: readonly string[];
   private readonly topicUpdateNarration: boolean;
   private readonly disableLLMCorrection: boolean;
@@ -1144,6 +1148,8 @@ export class Config implements McpContext, AgentLoopContext {
       params.experimentalAgentHistoryRetainedMessages ?? 15;
     this.experimentalAgentHistorySummarization =
       params.experimentalAgentHistorySummarization ?? false;
+    this.experimentalWatchman = params.experimentalWatchman ?? false;
+    this.experimentalWatchmanInterval = params.experimentalWatchmanInterval ?? 20;
     this.memoryBoundaryMarkers = params.memoryBoundaryMarkers ?? ['.git'];
     this.topicUpdateNarration = params.topicUpdateNarration ?? false;
     this.modelSteering = params.modelSteering ?? false;
@@ -2352,6 +2358,14 @@ export class Config implements McpContext, AgentLoopContext {
 
   isExperimentalAgentHistorySummarizationEnabled(): boolean {
     return this.experimentalAgentHistorySummarization;
+  }
+
+  isExperimentalWatchmanEnabled(): boolean {
+    return this.experimentalWatchman;
+  }
+
+  getExperimentalWatchmanInterval(): number {
+    return this.experimentalWatchmanInterval;
   }
 
   isTopicUpdateNarrationEnabled(): boolean {

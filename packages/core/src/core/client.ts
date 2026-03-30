@@ -12,6 +12,8 @@ import {
   type Tool,
   type GenerateContentResponse,
 } from '@google/genai';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Part } from '@google/genai';
 import { partListUnionToString } from './geminiRequest.js';
 import {
   getDirectoryContextString,
@@ -45,6 +47,7 @@ import type { ContentGenerator } from './contentGenerator.js';
 import { LoopDetectionService } from '../services/loopDetectionService.js';
 import { ChatCompressionService } from '../services/chatCompressionService.js';
 import { AgentHistoryProvider } from '../services/agentHistoryProvider.js';
+import type { WatchmanProgress } from '../agents/types.js';
 import { ideContextStore } from '../ide/ideContext.js';
 import {
   logContentRetryFailure,
@@ -634,6 +637,25 @@ export class GeminiClient {
 
       if (compressed.compressionStatus === CompressionStatus.COMPRESSED) {
         yield { type: GeminiEventType.ChatCompressed, value: compressed };
+      }
+    }
+
+    if (
+      this.config.isExperimentalWatchmanEnabled() &&
+      this.sessionTurnCount > 0 &&
+      this.sessionTurnCount % this.config.getExperimentalWatchmanInterval() ===
+        0
+    ) {
+      const watchmanResult = await this.tryRunWatchman(prompt_id, signal);
+      if (watchmanResult?.feedback) {
+        const feedback = watchmanResult.feedback;
+        const feedbackRequest = [
+          {
+            text: `System: Feedback from Watchman (Review of last ${this.config.getExperimentalWatchmanInterval()} turns):\n\n${feedback}`,
+          },
+        ];
+        // Inject feedback into the conversation
+        this.getChat().addHistory(createUserContent(feedbackRequest));
       }
     }
 
@@ -1250,6 +1272,68 @@ export class GeminiClient {
     if (result.maskedCount > 0) {
       this.getChat().setHistory(result.newHistory);
     }
+  }
+
+  /**
+   * Runs the watchman subagent to monitor progress and direction.
+   */
+  private async tryRunWatchman(
+    prompt_id: string,
+    signal: AbortSignal,
+  ): Promise<WatchmanProgress | undefined> {
+    const watchmanTool = this.context.toolRegistry.getTool('watchman');
+    if (!watchmanTool) {
+      debugLogger.warn('Watchman tool not found in registry');
+      return undefined;
+    }
+
+    // Get the last N turns of history
+    const interval = this.config.getExperimentalWatchmanInterval();
+    const history = this.getHistory();
+    // Each turn usually consists of 2-3 messages (user, model, tool results).
+    // We'll take a safe amount of recent history.
+    const recentMessages = history.slice(-interval * 4);
+    const recentHistory = recentMessages
+      .map((m) => {
+        const role = m.role ?? 'unknown';
+        const parts =
+          m.parts
+            ?.map((p) => {
+              if (typeof p === 'string') return p;
+              const part: Part = p as any;
+              if (part.text) return part.text;
+              if (part.functionCall) {
+                return `[CALL: ${part.functionCall.name}(${JSON.stringify(part.functionCall.args)})]`;
+              }
+              if (part.functionResponse) {
+                return `[RESULT: ${part.functionResponse.name} -> ${JSON.stringify(part.functionResponse.response)}]`;
+              }
+              return partToString(p, { verbose: true });
+            })
+            .join('\n') ?? '';
+        return `[${role.toUpperCase()}]: ${parts}`;
+      })
+      .join('\n\n');
+
+    try {
+      const invocation = watchmanTool.build({ recentHistory });
+      const result = await invocation.execute(signal);
+
+      if (result.llmContent) {
+        try {
+          const contentString = partListUnionToString(result.llmContent);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+          return JSON.parse(contentString) as WatchmanProgress;
+        } catch (e) {
+          debugLogger.warn('Failed to parse watchman output', e);
+          return undefined;
+        }
+      }
+    } catch (e) {
+      debugLogger.warn('Error running watchman subagent', e);
+    }
+
+    return undefined;
   }
 
   /**
