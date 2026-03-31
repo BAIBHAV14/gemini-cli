@@ -1352,8 +1352,10 @@ export class Config implements McpContext, AgentLoopContext {
     this.getFileService();
 
     if (this.getSandboxEnabled()) {
-      this.sandboxForbiddenPaths =
-        await this.getFileService().getIgnoredPaths();
+      this.sandboxForbiddenPaths = await this.getFileService().getIgnoredPaths({
+        respectGitIgnore: false,
+        respectGeminiIgnore: true,
+      });
       this.rebuildSandboxEnvironment();
     }
 
