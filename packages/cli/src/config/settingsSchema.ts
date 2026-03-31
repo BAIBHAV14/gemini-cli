@@ -756,7 +756,7 @@ const SETTINGS_SCHEMA = {
         label: 'Loading Phrases',
         category: 'UI',
         requiresRestart: false,
-        default: 'tips',
+        default: 'witty',
         description:
           'What to show while the model is working: tips, witty comments, both, or nothing.',
         showInDialog: true,

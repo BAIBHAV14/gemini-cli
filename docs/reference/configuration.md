@@ -345,7 +345,7 @@ their corresponding top-level category object in your `settings.json` file.
 - **`ui.loadingPhrases`** (enum):
   - **Description:** What to show while the model is working: tips, witty
     comments, both, or nothing.
-  - **Default:** `"tips"`
+  - **Default:** `"witty"`
   - **Values:** `"tips"`, `"witty"`, `"all"`, `"off"`
 
 - **`ui.errorVerbosity`** (enum):
