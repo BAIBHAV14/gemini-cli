@@ -9,7 +9,10 @@ import { Box, Text } from 'ink';
 import { ThemedGradient } from './ThemedGradient.js';
 import { theme } from '../semantic-colors.js';
 import { formatDuration } from '../utils/formatters.js';
-import { useSessionStats } from '../contexts/SessionContext.js';
+import {
+  useSessionStats,
+  type ModelMetrics,
+} from '../contexts/SessionContext.js';
 import {
   getStatusColor,
   TOOL_SUCCESS_RATE_HIGH,
@@ -70,6 +73,100 @@ const Section: React.FC<SectionProps> = ({ title, children }) => (
 
 // Logic for building the unified list of table rows
 
+interface ModelUsageTableProps {
+  models: Record<string, ModelMetrics>;
+}
+
+const ModelUsageTable: React.FC<ModelUsageTableProps> = ({ models }) => {
+  const nameWidth = 20;
+  const requestsWidth = 8;
+  const inputTokensWidth = 14;
+  const cacheReadsWidth = 14;
+  const outputTokensWidth = 14;
+
+  return (
+    <Box flexDirection="column" marginTop={1}>
+      <Text bold color={theme.text.primary}>
+        Model Usage
+      </Text>
+      <Text color={theme.text.secondary}>
+        Use /model to view model quota information
+      </Text>
+      <Box height={1} />
+
+      {/* Header */}
+      <Box
+        borderBottom={true}
+        borderStyle="single"
+        borderColor={theme.border.default}
+        borderTop={false}
+        borderLeft={false}
+        borderRight={false}
+      >
+        <Box width={nameWidth}>
+          <Text bold color={theme.text.secondary}>
+            Model
+          </Text>
+        </Box>
+        <Box width={requestsWidth} justifyContent="flex-end">
+          <Text bold color={theme.text.secondary}>
+            Reqs
+          </Text>
+        </Box>
+        <Box width={inputTokensWidth} justifyContent="flex-end">
+          <Text bold color={theme.text.secondary}>
+            Input Tokens
+          </Text>
+        </Box>
+        <Box width={cacheReadsWidth} justifyContent="flex-end">
+          <Text bold color={theme.text.secondary}>
+            Cache Reads
+          </Text>
+        </Box>
+        <Box width={outputTokensWidth} justifyContent="flex-end">
+          <Text bold color={theme.text.secondary}>
+            Output Tokens
+          </Text>
+        </Box>
+      </Box>
+
+      {/* Rows */}
+      {Object.entries(models).map(([name, modelMetrics]) => (
+        <Box key={name}>
+          <Box width={nameWidth}>
+            <Text color={theme.text.primary}>
+              {name
+                .replace('-001', '')
+                .slice(0, nameWidth - 1)
+                .padEnd(nameWidth - 1)}
+            </Text>
+          </Box>
+          <Box width={requestsWidth} justifyContent="flex-end">
+            <Text color={theme.text.primary}>
+              {modelMetrics.api.totalRequests}
+            </Text>
+          </Box>
+          <Box width={inputTokensWidth} justifyContent="flex-end">
+            <Text color={theme.text.primary}>
+              {modelMetrics.tokens.prompt.toLocaleString()}
+            </Text>
+          </Box>
+          <Box width={cacheReadsWidth} justifyContent="flex-end">
+            <Text color={theme.text.primary}>
+              {modelMetrics.tokens.cached.toLocaleString()}
+            </Text>
+          </Box>
+          <Box width={outputTokensWidth} justifyContent="flex-end">
+            <Text color={theme.text.primary}>
+              {modelMetrics.tokens.candidates.toLocaleString()}
+            </Text>
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
 interface StatsDisplayProps {
   duration: string;
   title?: string;
@@ -93,7 +190,7 @@ export const StatsDisplay: React.FC<StatsDisplayProps> = ({
 }) => {
   const { stats } = useSessionStats();
   const { metrics } = stats;
-  const { tools, files } = metrics;
+  const { tools, files, models } = metrics;
   const computed = computeSessionStats(metrics);
   const settings = useSettings();
 
@@ -235,6 +332,9 @@ export const StatsDisplay: React.FC<StatsDisplayProps> = ({
           </Text>
         </SubStatRow>
       </Section>
+
+      {Object.keys(models).length > 0 && <ModelUsageTable models={models} />}
+
       {renderFooter()}
     </Box>
   );

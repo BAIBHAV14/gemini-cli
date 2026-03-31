@@ -123,6 +123,11 @@ describe('<StatsDisplay />', () => {
 
     expect(output).toContain('Performance');
     expect(output).toContain('Interaction Summary');
+    expect(output).toContain('Model Usage');
+    expect(output).toContain('Reqs');
+    expect(output).toContain('Input Tokens');
+    expect(output).toContain('Cache Reads');
+    expect(output).toContain('Output Tokens');
     expect(output).toMatchSnapshot();
   });
 
@@ -177,6 +182,7 @@ describe('<StatsDisplay />', () => {
     expect(output).toContain('Performance');
     expect(output).toContain('Interaction Summary');
     expect(output).toContain('User Agreement');
+    expect(output).toContain('Model Usage');
     expect(output).toMatchSnapshot();
   });
 
