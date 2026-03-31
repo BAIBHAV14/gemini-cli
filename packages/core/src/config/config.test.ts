@@ -252,6 +252,10 @@ vi.mock('../core/tokenLimits.js', () => ({
 vi.mock('../code_assist/codeAssist.js');
 vi.mock('../code_assist/experiments/experiments.js');
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe('Server Config (config.ts)', () => {
   const MODEL = DEFAULT_GEMINI_MODEL;
   const SANDBOX: SandboxConfig = createMockSandboxConfig({
