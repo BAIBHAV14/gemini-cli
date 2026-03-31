@@ -46,10 +46,7 @@ import { LocalLiteRtLmClient } from '../core/localLiteRtLmClient.js';
 import type { HookDefinition, HookEventName } from '../hooks/types.js';
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import { GitService } from '../services/gitService.js';
-import {
-  type SandboxManager,
-  NoopSandboxManager,
-} from '../services/sandboxManager.js';
+import { type SandboxManager } from '../services/sandboxManager.js';
 import { createSandboxManager } from '../services/sandboxManagerFactory.js';
 import { SandboxedFileSystemService } from '../services/sandboxedFileSystemService.js';
 import {
@@ -78,10 +75,7 @@ import { shouldAttemptBrowserLaunch } from '../utils/browser.js';
 import type { MCPOAuthConfig } from '../mcp/oauth-provider.js';
 import { ideContextStore } from '../ide/ideContext.js';
 import { WriteTodosTool } from '../tools/write-todos.js';
-import {
-  StandardFileSystemService,
-  type FileSystemService,
-} from '../services/fileSystemService.js';
+import { type FileSystemService } from '../services/fileSystemService.js';
 import {
   TrackerCreateTaskTool,
   TrackerUpdateTaskTool,
@@ -965,6 +959,11 @@ export class Config implements McpContext, AgentLoopContext {
 
     this.targetDir = path.resolve(params.targetDir);
 
+    this.fileSystemService = new SandboxedFileSystemService(
+      () => this._sandboxManager,
+      this.targetDir,
+    );
+
     this._sandboxPolicyManager = new SandboxPolicyManager();
     const initialApprovalMode =
       params.approvalMode ??
@@ -1648,18 +1647,6 @@ export class Config implements McpContext, AgentLoopContext {
 
     if (this.shellExecutionConfig) {
       this.shellExecutionConfig.sandboxManager = this._sandboxManager;
-    }
-
-    if (
-      !(this._sandboxManager instanceof NoopSandboxManager) &&
-      this.sandbox?.enabled
-    ) {
-      this.fileSystemService = new SandboxedFileSystemService(
-        this._sandboxManager,
-        this.targetDir,
-      );
-    } else {
-      this.fileSystemService = new StandardFileSystemService();
     }
   }
 

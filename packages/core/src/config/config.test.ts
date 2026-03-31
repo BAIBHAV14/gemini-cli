@@ -1602,7 +1602,7 @@ describe('Server Config (config.ts)', () => {
       expect(config['sandboxForbiddenPaths']).toBeUndefined();
     });
 
-    it('rebuilds sandbox services when approval mode changes', () => {
+    it('rebuilds sandbox services when approval mode changes while preserving FS service instance', () => {
       const config = new Config({
         ...baseParams,
         trustedFolder: true,
@@ -1616,14 +1616,15 @@ describe('Server Config (config.ts)', () => {
       // Change approval mode, which triggers rebuildSandboxEnvironment
       config.setApprovalMode(ApprovalMode.PLAN);
 
-      // Verify that new instances were created to prevent stale references
-      expect(config['fileSystemService']).not.toBe(initialFs);
+      // Verify that the FS instance is preserved
+      expect(config['fileSystemService']).toBe(initialFs);
+      // Verify that the internal sandbox manager was swapped
       expect(config['shellExecutionConfig'].sandboxManager).not.toBe(
         initialSandboxManager,
       );
     });
 
-    it('downgrades to standard file system in permissive approval modes', () => {
+    it('always uses SandboxedFileSystemService and delegates internally based on mode', () => {
       const config = new Config({
         ...baseParams,
         trustedFolder: true,
@@ -1637,7 +1638,7 @@ describe('Server Config (config.ts)', () => {
       config.setApprovalMode(ApprovalMode.YOLO);
 
       expect(config['fileSystemService'].constructor.name).toBe(
-        'StandardFileSystemService',
+        'SandboxedFileSystemService',
       );
     });
   });
