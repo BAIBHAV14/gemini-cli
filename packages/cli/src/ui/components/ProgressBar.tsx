@@ -21,7 +21,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   warningThreshold = 80,
 }) => {
   const safeValue = Math.min(Math.max(value, 0), 100);
-  const activeChars = value < 1 ? 0 : Math.round((safeValue / 100) * width);
+  const activeChars = Math.ceil((safeValue / 100) * width);
   const inactiveChars = width - activeChars;
 
   let color = theme.status.success;
