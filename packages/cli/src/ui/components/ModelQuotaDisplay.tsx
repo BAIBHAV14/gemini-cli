@@ -61,6 +61,13 @@ const ModelUsageRow = ({ row, availableWidth }: ModelUsageRowProps) => {
     0,
     calcWidth - defaultPadding - (nameLabelLength + resetLabelLength + 9),
   );
+  let percentageColor = theme.text.primary;
+  if (row.usedPercentage >= 80) {
+    percentageColor = theme.status.warning;
+  }
+  if (row.usedPercentage >= 90) {
+    percentageColor = theme.status.error;
+  }
 
   return (
     <Box flexDirection="row" width="100%">
@@ -73,7 +80,7 @@ const ModelUsageRow = ({ row, availableWidth }: ModelUsageRowProps) => {
       </Box>
 
       <Box width={4} marginLeft={1}>
-        <Text color={theme.text.primary}>{percentageLabel}</Text>
+        <Text color={percentageColor}>{percentageLabel}</Text>
       </Box>
 
       <Box width={resetLabelLength} marginLeft={1}>

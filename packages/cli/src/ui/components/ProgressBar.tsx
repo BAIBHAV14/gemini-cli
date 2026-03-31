@@ -6,7 +6,8 @@
 
 import type React from 'react';
 import { Box, Text } from 'ink';
-import { Colors } from '../colors.js';
+// import { Colors } from '../colors.js';
+import { theme } from '../semantic-colors.js';
 
 interface ProgressBarProps {
   value: number; // 0 to 100
@@ -20,20 +21,20 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   warningThreshold = 80,
 }) => {
   const safeValue = Math.min(Math.max(value, 0), 100);
-  const activeChars = Math.round((safeValue / 100) * width);
+  const activeChars = value < 1 ? 0 : Math.round((safeValue / 100) * width);
   const inactiveChars = width - activeChars;
 
-  let color = Colors.AccentGreen;
+  let color = theme.status.success;
   if (safeValue >= 100) {
-    color = Colors.AccentRed;
+    color = theme.status.error;
   } else if (safeValue >= warningThreshold) {
-    color = Colors.AccentYellow;
+    color = theme.status.warning;
   }
 
   return (
     <Box flexDirection="row">
       <Text color={color}>{'▬'.repeat(activeChars)}</Text>
-      <Text color={Colors.DarkGray}>{'▬'.repeat(inactiveChars)}</Text>
+      <Text color={theme.border.default}>{'▬'.repeat(inactiveChars)}</Text>
     </Box>
   );
 };
