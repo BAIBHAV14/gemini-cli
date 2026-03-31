@@ -12,8 +12,6 @@ import {
   type Tool,
   type GenerateContentResponse,
 } from '@google/genai';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Part } from '@google/genai';
 import { partListUnionToString } from './geminiRequest.js';
 import {
   getDirectoryContextString,
@@ -646,8 +644,12 @@ export class GeminiClient {
       this.sessionTurnCount % this.config.getExperimentalWatchmanInterval() ===
         0
     ) {
+      debugLogger.log(`[Watchman] Kicking in at turn ${this.sessionTurnCount}`);
       const watchmanResult = await this.tryRunWatchman(prompt_id, signal);
       if (watchmanResult?.feedback) {
+        debugLogger.log(
+          `[Watchman] Feedback provided: ${watchmanResult.feedback}`,
+        );
         const feedback = watchmanResult.feedback;
         const feedbackRequest = [
           {
@@ -656,6 +658,8 @@ export class GeminiClient {
         ];
         // Inject feedback into the conversation
         this.getChat().addHistory(createUserContent(feedbackRequest));
+      } else {
+        debugLogger.log('[Watchman] No feedback provided.');
       }
     }
 
@@ -1300,7 +1304,12 @@ export class GeminiClient {
           m.parts
             ?.map((p) => {
               if (typeof p === 'string') return p;
-              const part: Part = p as any;
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+              const part = p as {
+                text?: string;
+                functionCall?: { name: string; args: unknown };
+                functionResponse?: { name: string; response: unknown };
+              };
               if (part.text) return part.text;
               if (part.functionCall) {
                 return `[CALL: ${part.functionCall.name}(${JSON.stringify(part.functionCall.args)})]`;
@@ -1316,14 +1325,20 @@ export class GeminiClient {
       .join('\n\n');
 
     try {
+      debugLogger.log('[Watchman] Executing subagent...');
       const invocation = watchmanTool.build({ recentHistory });
       const result = await invocation.execute(signal);
 
       if (result.llmContent) {
         try {
           const contentString = partListUnionToString(result.llmContent);
+          debugLogger.log(`[Watchman] Raw content response: ${contentString}`);
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-          return JSON.parse(contentString) as WatchmanProgress;
+          const parsed = JSON.parse(
+            contentString,
+          ) as unknown as WatchmanProgress;
+          debugLogger.log('[Watchman] Subagent execution complete.');
+          return parsed;
         } catch (e) {
           debugLogger.warn('Failed to parse watchman output', e);
           return undefined;
